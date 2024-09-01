@@ -146,7 +146,7 @@ const GetOrder = async (req, res) => {
 }
 
 const GetOrders = async (req, res) => {
-
+    
     try {    
         const [result] = await db.query(
             `SELECT 
@@ -194,10 +194,34 @@ const GetOrders = async (req, res) => {
             title: "Internal Server Error", 
             message: "Something went wrong. Please Try again",            
         });
-    }
+    }        
+}
 
-    
-    
+async function GetNewOrders() {    
+    const [rows] = await db.execute(
+        `SELECT 
+            orders.*,
+            GROUP_CONCAT(
+                CONCAT(
+                    '{"',
+                        'Order Item ID": "', order_items.order_item_id, '",',
+                        '"Item ID": "', order_items.item_id, '",',
+                        '"Item Name": "', order_items.item_name, '",',
+                        '"Item Quantity": "', order_items.item_quantity, '",',
+                        '"Item Price": "', order_items.item_price, '",',
+                        '"Item Total Price": "', order_items.item_total, '"',
+                    '}'
+                )
+                SEPARATOR ','
+            ) AS items
+        FROM orders
+        LEFT JOIN order_items ON orders.order_id = order_items.order_id
+        WHERE isVoid != true AND order_status = 'Preparing'
+        GROUP BY orders.order_id
+        ORDER BY orders.created_time DESC;`
+    );  
+
+    return rows;
 }
 
 module.exports = {
@@ -205,5 +229,6 @@ module.exports = {
     UpdateOrder,
     DeleteOrder,
     GetOrder,
-    GetOrders
+    GetOrders,
+    GetNewOrders
 }
