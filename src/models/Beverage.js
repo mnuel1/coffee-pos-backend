@@ -1,5 +1,6 @@
 class Beverage {
   constructor(
+    idNo,
     name,
     description,
     sugarLevel,
@@ -10,6 +11,7 @@ class Beverage {
     isFeatured,
     category
   ) {
+    this.idNo = idNo;
     this.name = name;
     this.description = description;
     this.sugarLevel = sugarLevel;
