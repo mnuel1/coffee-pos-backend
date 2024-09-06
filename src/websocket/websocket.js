@@ -31,6 +31,8 @@ async function sendLatestOrder(ws) {
     try {
         const orders = await GetNewOrders();
         if (orders.length > 0) {
+            console.log(orders);
+            
             ws.send(JSON.stringify(orders));
         }
     } catch (err) {

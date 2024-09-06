@@ -6,21 +6,21 @@ const CreateOrder = async (req, res) => {
     
     try {
 
-        const { order_payload, order_items_id } = req.body
+        const { order, order_items } = req.body
 
         await connection.beginTransaction()
     
         const [ result ] = await connection.query(
-            `INSERT INTO orders (total_amt, order_type, payment_type) VALUES (?, ?, ?)`,
-            [order_payload.total_amt, order_payload.order_type, order_payload.payment_type]
+            `INSERT INTO orders (customer_name, customer_msg, total_amt, order_type, payment_type) VALUES (?, ?, ?, ?, ?)`,
+            [order.customer_name, order.customer_msg,  order.total_amt, order.order_type, order.payment_type]
         )
 
         const orderId = result.insertId
       
-        for (const item of order_items_id) {
+        for (const item of order_items) {
             await connection.query(
-                `INSERT INTO order_items (order_id, item_id) VALUES (?, ?)`,
-                [orderId, item] 
+                `INSERT INTO order_beverages (order_id, beverage_id, sugar_level, size, item_price, item_quantity, item_total) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+                [orderId, item.beverage_id, item.sugar_level, item.size, item.price, item.quantity, item.total] 
             );
         }
 
@@ -99,19 +99,20 @@ const GetOrder = async (req, res) => {
                 GROUP_CONCAT(
                     CONCAT(
                         '{"',
-                            'Order Item ID": "', order_items.order_item_id, '",',
-                            '"Item ID": "', order_items.item_id, '",',
-                            '"Item Name": "', order_items.item_name, '",',
-                            '"Item Quantity": "', order_items.item_quantity, '",',
-                            '"Item Price": "', order_items.item_price, '",',
-                            '"Item Total Price": "', order_items.item_total, '"',
+                            'Beverage ID": "', beverages.beverage_id, '",',                            
+                            '"Name": "', beverages.name, '",',
+                            '"Description": "', beverages.description, '",',
+                            '"Sugar Level": "', order_beverages.sugar_level, '",',
+                            '"Price": "', order_beverages.item_price, '",',       
+                            '"Quantity": "', order_beverages.item_quantity, '",',                     
+                            '"Total Price": "', order_beverages.item_total, '"',
                         '}'
                     )
                     SEPARATOR ','
                 ) AS items
             FROM orders
-            LEFT JOIN order_items
-            ON orders.order_id = order_items.order_id
+            LEFT JOIN order_beverages ON orders.order_id = order_beverages.order_id
+            LEFT JOIN beverages ON beverages.beverage_id = order_beverages.beverage_id
             WHERE orders.order_id = ? AND isVoid != true
             GROUP BY orders.order_id`,
             [order_id]
@@ -150,23 +151,24 @@ const GetOrders = async (req, res) => {
     try {    
         const [result] = await db.query(
             `SELECT 
-                orders.*,
+                orders.*,                
                 GROUP_CONCAT(
                     CONCAT(
                         '{"',
-                            'Order Item ID": "', order_items.order_item_id, '",',
-                            '"Item ID": "', order_items.item_id, '",',
-                            '"Item Name": "', order_items.item_name, '",',
-                            '"Item Quantity": "', order_items.item_quantity, '",',
-                            '"Item Price": "', order_items.item_price, '",',
-                            '"Item Total Price": "', order_items.item_total, '"',
+                            'Beverage ID": "', beverages.beverage_id, '",',                            
+                            '"Name": "', beverages.name, '",',
+                            '"Description": "', beverages.description, '",',
+                            '"Sugar Level": "', order_beverages.sugar_level, '",',
+                            '"Price": "', order_beverages.item_price, '",',       
+                            '"Quantity": "', order_beverages.item_quantity, '",',                     
+                            '"Total Price": "', order_beverages.item_total, '"',
                         '}'
                     )
                     SEPARATOR ','
                 ) AS items
             FROM orders
-            LEFT JOIN order_items
-            ON orders.order_id = order_items.order_id
+            LEFT JOIN order_beverages ON orders.order_id = order_beverages.order_id
+            LEFT JOIN beverages ON beverages.beverage_id = order_beverages.beverage_id
             WHERE isVoid != true
             GROUP BY orders.order_id`
         );
@@ -202,24 +204,30 @@ async function GetNewOrders() {
         `SELECT 
             orders.*,
             GROUP_CONCAT(
-                CONCAT(
-                    '{"',
-                        'Order Item ID": "', order_items.order_item_id, '",',
-                        '"Item ID": "', order_items.item_id, '",',
-                        '"Item Name": "', order_items.item_name, '",',
-                        '"Item Quantity": "', order_items.item_quantity, '",',
-                        '"Item Price": "', order_items.item_price, '",',
-                        '"Item Total Price": "', order_items.item_total, '"',
-                    '}'
-                )
-                SEPARATOR ','
-            ) AS items
+                    CONCAT(
+                        '{"',
+                            'Beverage ID": "', beverages.beverage_id, '",',                            
+                            '"Name": "', beverages.name, '",',
+                            '"Description": "', beverages.description, '",',
+                            '"Sugar Level": "', order_beverages.sugar_level, '",',
+                            '"Price": "', order_beverages.item_price, '",',       
+                            '"Quantity": "', order_beverages.item_quantity, '",',                     
+                            '"Total Price": "', order_beverages.item_total, '"',
+                        '}'
+                    )
+                    SEPARATOR ','
+                ) AS items
         FROM orders
-        LEFT JOIN order_items ON orders.order_id = order_items.order_id
+        LEFT JOIN order_beverages ON orders.order_id = order_beverages.order_id
+        LEFT JOIN beverages ON beverages.beverage_id = order_beverages.beverage_id
         WHERE isVoid != true AND order_status = 'Preparing'
         GROUP BY orders.order_id
         ORDER BY orders.created_time DESC;`
-    );  
+    ); 
+    
+    rows.forEach((item) => {
+        item.items = JSON.parse(`[${item.items}]`);
+    });
 
     return rows;
 }
