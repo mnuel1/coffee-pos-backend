@@ -6,16 +6,23 @@ const CreateOrder = async (req, res) => {
     
     try {
 
-        const { order, order_items } = req.body
+        const { order, order_items, id } = req.body
 
         await connection.beginTransaction()
     
-        const [ result ] = await connection.query(
-            `INSERT INTO orders (customer_name, customer_msg, total_amt, order_type, payment_type) VALUES (?, ?, ?, ?, ?)`,
-            [order.customer_name, order.customer_msg,  order.total_amt, order.order_type, order.payment_type]
+        const [ paymentResult ] = await connection.query(
+            `INSERT INTO payment (admin_id, payment_type) VALUES (?, ?)`,
+            [id, order.payment_type]
         )
 
-        const orderId = result.insertId
+        const paymentId = paymentResult.insertId
+
+        const [ orderResult ] = await connection.query(
+            `INSERT INTO orders (payment_id, customer_name, customer_msg, total_amt, order_type) VALUES (?, ?, ?, ?, ?)`,
+            [paymentId, order.customer_name, order.customer_msg,  order.total_amt, order.order_type]
+        )
+
+        const orderId = orderResult.insertId
       
         for (const item of order_items) {
             await connection.query(
@@ -45,9 +52,35 @@ const CreateOrder = async (req, res) => {
 
 const UpdateOrder = async (req, res) => {
 
-/*
- * NOT YET SURE IF ORDER CAN BE UPDATED 
- */
+    const { status, order_id } = req.body
+
+    try {
+
+        const [result] = await db.query(
+            `UPDATE orders SET order_status = ? WHERE order_id = ?`,
+            [status, order_id]
+        )
+
+        if (!result) {
+            return res.status(404).json({ 
+                title: "Not Found", 
+                message: "You are trying to update an order that don't exist" 
+            });
+        }
+
+        return res.status(200).json({ 
+            title: "Success", 
+            message: "nice"
+        });
+
+    } catch (error) {
+      
+        console.error(error)
+        return res.status(500).json({ 
+            title: "Internal Server Error", 
+            message: "Something went wrong. Please Try again", 
+        });
+    } 
     
 }
 
@@ -96,6 +129,7 @@ const GetOrder = async (req, res) => {
         const [result] = await db.query(
             `SELECT 
                 orders.*,
+                payment.*,
                 GROUP_CONCAT(
                     CONCAT(
                         '{"',
@@ -111,6 +145,7 @@ const GetOrder = async (req, res) => {
                     SEPARATOR ','
                 ) AS items
             FROM orders
+            LEFT JOIN payment ON payment.payment_id = orders.payment_id
             LEFT JOIN order_beverages ON orders.order_id = order_beverages.order_id
             LEFT JOIN beverages ON beverages.beverage_id = order_beverages.beverage_id
             WHERE orders.order_id = ? AND isVoid != true
@@ -151,7 +186,8 @@ const GetOrders = async (req, res) => {
     try {    
         const [result] = await db.query(
             `SELECT 
-                orders.*,                
+                orders.*,
+                payment.*,                
                 GROUP_CONCAT(
                     CONCAT(
                         '{"',
@@ -167,6 +203,7 @@ const GetOrders = async (req, res) => {
                     SEPARATOR ','
                 ) AS items
             FROM orders
+            LEFT JOIN payment ON payment.payment_id = orders.payment_id
             LEFT JOIN order_beverages ON orders.order_id = order_beverages.order_id
             LEFT JOIN beverages ON beverages.beverage_id = order_beverages.beverage_id
             WHERE isVoid != true
@@ -199,10 +236,12 @@ const GetOrders = async (req, res) => {
     }        
 }
 
-async function GetNewOrders() {    
+async function GetNewOrders() {
+    const status = 'Preparing'    
     const [rows] = await db.execute(
         `SELECT 
             orders.*,
+            payment.*,
             GROUP_CONCAT(
                     CONCAT(
                         '{"',
@@ -218,11 +257,13 @@ async function GetNewOrders() {
                     SEPARATOR ','
                 ) AS items
         FROM orders
+        LEFT JOIN payment ON payment.payment_id = orders.payment_id
         LEFT JOIN order_beverages ON orders.order_id = order_beverages.order_id
         LEFT JOIN beverages ON beverages.beverage_id = order_beverages.beverage_id
-        WHERE isVoid != true AND order_status = 'Preparing'
+        WHERE isVoid != true AND order_status = ?
         GROUP BY orders.order_id
-        ORDER BY orders.created_time DESC;`
+        ORDER BY orders.created_time DESC`, 
+        [status]
     ); 
     
     rows.forEach((item) => {

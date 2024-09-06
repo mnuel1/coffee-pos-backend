@@ -11,6 +11,7 @@ function setupWebSocket(server) {
 
         const intervalId = setInterval(() => {
             sendLatestOrder(ws);
+            // sendLatestPaymentPending(ws)
         }, 5000);
     
         ws.on('close', () => {
@@ -31,7 +32,7 @@ async function sendLatestOrder(ws) {
     try {
         const orders = await GetNewOrders();
         if (orders.length > 0) {
-            console.log(orders);
+            // console.log(orders);
             
             ws.send(JSON.stringify(orders));
         }
@@ -39,6 +40,20 @@ async function sendLatestOrder(ws) {
         console.error('Error fetching orders:', err);
     }
 }
+
+async function sendLatestPaymentPending (ws) {
+    try {
+        const pendingPayment = await GetPendingPayment();
+        if (orders.length > 0) {
+            // console.log(orders);
+            
+            ws.send(JSON.stringify(pendingPayment));
+        }
+    } catch (err) {
+        console.error('Error fetching orders:', err);
+    }
+}
+
 
 module.exports = {
     setupWebSocket,
