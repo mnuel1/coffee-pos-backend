@@ -35,7 +35,8 @@ const CreateOrder = async (req, res) => {
 
         return res.status(200).json({ 
             title: "Order in Progress", 
-            message: "Your order has been sent to the kitchen. Please hold on while we prepare it.", 
+            message: "Your order has been sent to the kitchen. Please hold on while we prepare it.",
+            order_id: orderId 
         });
 
     } catch (error) {
