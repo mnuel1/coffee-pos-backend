@@ -12,7 +12,7 @@ const CreateOrder = async (req, res) => {
     let isReferenceCodeUnique = false;
 
     while (!isReferenceCodeUnique) {
-      referenceCode = generateReferenceCode();
+      referenceCode = helperGenerateReferenceCode();
       const [existingReference] = await connection.query(
         `SELECT COUNT(*) AS count from orders where reference_code = ?`,
         [referenceCode]
@@ -77,7 +77,7 @@ const CreateOrder = async (req, res) => {
   }
 };
 
-function helperGenerateReferenceCode = () => {
+const helperGenerateReferenceCode = () => {
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     let reference = "";
     for (let i = 0; i < 6; i++) {
