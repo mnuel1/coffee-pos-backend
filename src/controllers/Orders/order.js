@@ -65,7 +65,7 @@ const CreateOrder = async (req, res) => {
       message:
         "Your order has been sent to the kitchen. Please hold on while we prepare it.",
       order_id: orderId,
-      reference_code: referenceCode, 
+      reference_code: referenceCode,
     });
   } catch (error) {
     await connection.rollback();
@@ -78,14 +78,15 @@ const CreateOrder = async (req, res) => {
 };
 
 const helperGenerateReferenceCode = () => {
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let reference = "";
-    for (let i = 0; i < 6; i++) {
-        reference += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return reference;
-    };
-}
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let reference = "";
+  for (let i = 0; i < 6; i++) {
+    reference += characters.charAt(
+      Math.floor(Math.random() * characters.length)
+    );
+  }
+  return reference;
+};
 
 const UpdateOrder = async (req, res) => {
   const { status, order_id } = req.body;
