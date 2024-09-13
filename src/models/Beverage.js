@@ -9,6 +9,7 @@ class Beverage {
     beverageImg,
     isPopular,
     isFeatured,
+    isAvailable,
     category
   ) {
     this.idNo = idNo;
@@ -20,6 +21,7 @@ class Beverage {
     this.beverageImg = beverageImg;
     this.isPopular = isPopular;
     this.isFeatured = isFeatured;
+    this.isAvailable = isAvailable;
     this.category = category;
   }
 }
