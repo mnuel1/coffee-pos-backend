@@ -115,6 +115,7 @@ exports.readAllBeverages = async () => {
       beverage.category = JSON.parse(beverage.category);
 
       return {
+        id: beverage.beverage_id,
         name: beverage.name,
         description: beverage.description,
         sugarLevel: beverage.sugar_level,
