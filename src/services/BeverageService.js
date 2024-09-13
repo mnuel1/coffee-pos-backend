@@ -218,3 +218,39 @@ exports.deleteBeverage = async (beverageId) => {
     console.error(err);
   }
 };
+
+exports.patchAvailable = async (beverageId) => {
+  try {
+    const [results] = await db.query(
+      `UPDATE beverages SET is_available = true WHERE beverage_id = ?`,
+      [beverageId]
+    );
+
+    if (results.affectedRows) {
+      return {
+        title: "Beverage Availability Updated",
+        message: "Beverage availability has been updated",
+      };
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+exports.patchUnavailable = async (beverageId) => {
+  try {
+    const [results] = await db.query(
+      `UPDATE beverages SET is_available = false WHERE beverage_id = ?`,
+      [beverageId]
+    );
+
+    if (results.affectedRows) {
+      return {
+        title: "Beverage Availability Updated",
+        message: "Beverage availability has been updated",
+      };
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
