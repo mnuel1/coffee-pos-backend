@@ -21,7 +21,7 @@ app.use("/api/v1", router);
 app.use("/api/v1", beverageImageRouter);
 app.use("/api/v1", beverage);
 
-const server = app.listen(process.env.PORT, '0.0.0.0', () => {
+const server = app.listen(process.env.PORT, "0.0.0.0", () => {
   console.log(`Server is running on http://localhost:${process.env.PORT}`);
 });
 

@@ -31,7 +31,7 @@ exports.createBeverage = async (beverageDTO) => {
   );
 
   beverage.isAvailable = true;
-  beverage.beverageImg = `public/uploads/images/${beverageImg}`;
+  beverage.beverageImg = `${beverageImg}`;
 
   try {
     const [results] = await db.query(
