@@ -4,6 +4,8 @@ const {
   readAllBeverages,
   updateBeverage,
   deleteBeverage,
+  patchAvailable,
+  patchUnavailable,
 } = require("../services/BeverageService");
 
 exports.create = async (req, res) => {
@@ -66,6 +68,34 @@ exports.deleteBev = async (req, res) => {
   try {
     const beverageId = req.params.id;
     const response = await deleteBeverage(beverageId);
+    res.status(200).json(response);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      title: "Internal Server Error",
+      message: "Something went wrong. Please Try again",
+    });
+  }
+};
+
+exports.patchBeverageAvailable = async (req, res) => {
+  try {
+    const beverageId = req.params.id;
+    const response = await patchAvailable(beverageId);
+    res.status(200).json(response);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      title: "Internal Server Error",
+      message: "Something went wrong. Please Try again",
+    });
+  }
+};
+
+exports.patchBeverageUnavailable = async (req, res) => {
+  try {
+    const beverageId = req.params.id;
+    const response = await patchUnavailable(beverageId);
     res.status(200).json(response);
   } catch (error) {
     console.error(error);

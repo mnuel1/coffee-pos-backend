@@ -12,6 +12,7 @@ exports.createBeverage = async (beverageDTO) => {
     beverageImg,
     isPopular,
     isFeatured,
+    isAvailable,
     category,
   } = beverageDTO;
 
@@ -25,12 +26,16 @@ exports.createBeverage = async (beverageDTO) => {
     beverageImg,
     isPopular,
     isFeatured,
+    isAvailable,
     category
   );
 
+  beverage.isAvailable = true;
+  beverage.beverageImg = `public/uploads/images/${beverageImg}`;
+
   try {
     const [results] = await db.query(
-      `INSERT INTO beverages (name, description, sugar_level, price, calories, beverage_img, is_popular, is_featured, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO beverages (name, description, sugar_level, price, calories, beverage_img, is_popular, is_featured, is_available, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         beverage.name,
         beverage.description,
@@ -40,6 +45,7 @@ exports.createBeverage = async (beverageDTO) => {
         beverage.beverageImg,
         beverage.isPopular,
         beverage.isFeatured,
+        beverage.isAvailable,
         JSON.stringify(beverageDTO.category),
       ]
     );
@@ -88,6 +94,7 @@ exports.readOneBeverage = async (beverageId) => {
         beverageImg: beverage.beverage_img,
         isPopular: !!beverage.is_popular,
         isFeatured: !!beverage.is_featured,
+        isAvailable: !!beverage.is_available,
         category: beverage.category,
       };
 
@@ -109,6 +116,7 @@ exports.readAllBeverages = async () => {
       beverage.category = JSON.parse(beverage.category);
 
       return {
+        id: beverage.beverage_id,
         name: beverage.name,
         description: beverage.description,
         sugarLevel: beverage.sugar_level,
@@ -125,6 +133,7 @@ exports.readAllBeverages = async () => {
         beverageImg: beverage.beverage_img,
         isPopular: !!beverage.is_popular,
         isFeatured: !!beverage.is_featured,
+        isAvailable: !!beverage.is_available,
         category: beverage.category,
       };
     });
@@ -146,6 +155,7 @@ exports.updateBeverage = async (beverageId, beverageDTO) => {
     beverageImg,
     isPopular,
     isFeatured,
+    isAvailable,
     category,
   } = beverageDTO;
 
@@ -159,12 +169,13 @@ exports.updateBeverage = async (beverageId, beverageDTO) => {
     beverageImg,
     isPopular,
     isFeatured,
+    isAvailable,
     category
   );
 
   try {
     const [results] = await db.query(
-      `UPDATE beverages SET name = ?, description = ?, sugar_level = ?, price = ?, calories = ?, beverage_img = ?, is_popular = ?, is_featured = ?, category = ? WHERE beverage_id = ?`,
+      `UPDATE beverages SET name = ?, description = ?, sugar_level = ?, price = ?, calories = ?, beverage_img = ?, is_popular = ?, is_featured = ?, is_available = ?, category = ? WHERE beverage_id = ?`,
       [
         beverage.name,
         beverage.description,
@@ -175,6 +186,7 @@ exports.updateBeverage = async (beverageId, beverageDTO) => {
         beverage.isPopular,
         beverage.isFeatured,
         JSON.stringify(beverageDTO.category),
+        beverage.isAvailable,
         beverageId,
       ]
     );
@@ -201,6 +213,42 @@ exports.deleteBeverage = async (beverageId) => {
       return {
         title: "Beverage Deleted",
         message: "Beverage has been removed from the menu",
+      };
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+exports.patchAvailable = async (beverageId) => {
+  try {
+    const [results] = await db.query(
+      `UPDATE beverages SET is_available = true WHERE beverage_id = ?`,
+      [beverageId]
+    );
+
+    if (results.affectedRows) {
+      return {
+        title: "Beverage Availability Updated",
+        message: "Beverage availability has been updated",
+      };
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+exports.patchUnavailable = async (beverageId) => {
+  try {
+    const [results] = await db.query(
+      `UPDATE beverages SET is_available = false WHERE beverage_id = ?`,
+      [beverageId]
+    );
+
+    if (results.affectedRows) {
+      return {
+        title: "Beverage Availability Updated",
+        message: "Beverage availability has been updated",
       };
     }
   } catch (err) {
