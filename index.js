@@ -8,6 +8,7 @@ const { setupWebSocket } = require("./src/websocket/websocket");
 const router = require("./src/routes/route");
 const beverage = require("./src/routes/BeverageRoute");
 const beverageImageRouter = require("./src/routes/BeverageImageHandlerRouter");
+const getLocalIpAddress = require("./src/utils/getLocalIpHelper"); // Import the new module
 
 require("dotenv").config();
 
@@ -21,8 +22,10 @@ app.use("/api/v1", router);
 app.use("/api/v1", beverageImageRouter);
 app.use("/api/v1", beverage);
 
-const server = app.listen(process.env.PORT, "0.0.0.0", () => {
-  console.log(`Server is running on http://localhost:${process.env.PORT}`);
+const localIpAddress = getLocalIpAddress();
+
+const server = app.listen(process.env.PORT, localIpAddress, () => {
+  console.log(`Server is running on http://${localIpAddress}:${process.env.PORT}`);
 });
 
 app.get("/", (req, res) => {
