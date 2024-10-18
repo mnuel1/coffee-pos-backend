@@ -185,8 +185,8 @@ exports.updateBeverage = async (beverageId, beverageDTO) => {
         beverage.beverageImg,
         beverage.isPopular,
         beverage.isFeatured,
-        JSON.stringify(beverageDTO.category),
         beverage.isAvailable,
+        JSON.stringify(beverageDTO.category),
         beverageId,
       ]
     );
