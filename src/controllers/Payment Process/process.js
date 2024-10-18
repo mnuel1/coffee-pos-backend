@@ -1,5 +1,4 @@
 const db = require("../../database/db");
-const { format } = require('date-fns');
 
 const ProcessPayment = async (req, res) => {
   const { receipt_url } = req.body;
@@ -38,8 +37,7 @@ const ConfirmPayment = async (req, res) => {
   );
 
   try {
-    const currentDate = new Date();
-    const currentTimestamp = format(currentDate, 'yyyy-MM-dd HH:mm:ss');
+    const currentTimestamp = new Date().toISOString();
     const paymentStatus = "Paid";
     const orderStatus = "Served";
 
