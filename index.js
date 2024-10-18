@@ -3,6 +3,8 @@ const app = express();
 const cors = require("cors");
 const morgan = require("morgan");
 
+const getLocalIPAddress = require("./src/utils/updateIp");
+
 const { setupWebSocket } = require("./src/websocket/websocket");
 
 const router = require("./src/routes/route");
@@ -21,8 +23,10 @@ app.use("/api/v1", router);
 app.use("/api/v1", beverageImageRouter);
 app.use("/api/v1", beverage);
 
-const server = app.listen(process.env.PORT, "0.0.0.0", () => {
-  console.log(`Server is running on http://localhost:${process.env.PORT}`);
+const localIP = getLocalIPAddress();
+
+const server = app.listen(process.env.PORT, localIP, () => {
+  console.log(`Server is running on  http://${localIP}:${process.env.PORT}`);
 });
 
 app.get("/", (req, res) => {
