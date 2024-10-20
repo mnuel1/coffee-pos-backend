@@ -68,7 +68,9 @@ exports.deleteBev = async (req, res) => {
   try {
     const beverageId = req.params.id;
     const response = await deleteBeverage(beverageId);
-    res.status(200).json(response);
+    if (response.status === 405) {
+      res.status(405).json(response.message)
+    } else res.status(200).json(response);
   } catch (error) {
     console.error(error);
     res.status(500).json({

@@ -216,7 +216,12 @@ exports.deleteBeverage = async (beverageId) => {
       };
     }
   } catch (err) {
-    console.error(err);
+    if (err.errno === 1451) {
+      return {
+        status: 405,
+        message: "Unable to delete. Beverage has been ordered already."
+      }
+    }
   }
 };
 
