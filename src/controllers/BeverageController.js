@@ -40,31 +40,15 @@ exports.deleteBev = async (req, res) => {
 };
 
 exports.patchBeverageAvailable = async (req, res) => {
-  try {
-    const beverageId = req.params.id;
-    const response = await patchAvailable(beverageId);
-    res.status(200).json(response);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      title: "Internal Server Error",
-      message: "Something went wrong. Please Try again",
-    });
-  }
+  const beverageId = req.params.id;
+  const response = await patchAvailable(beverageId);
+  res.status(response.status).json({ message: response.message });
 };
 
 exports.patchBeverageUnavailable = async (req, res) => {
-  try {
-    const beverageId = req.params.id;
-    const response = await patchUnavailable(beverageId);
-    res.status(200).json(response);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      title: "Internal Server Error",
-      message: "Something went wrong. Please Try again",
-    });
-  }
+  const beverageId = req.params.id;
+  const response = await patchUnavailable(beverageId);
+  res.status(response.status).json({ message: response.message });
 };
 
 exports.getPopularBeverages = async (req, res) => {

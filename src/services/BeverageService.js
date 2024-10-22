@@ -291,14 +291,23 @@ exports.patchAvailable = async (beverageId) => {
       [beverageId]
     );
 
-    if (results.affectedRows) {
+    if (results.affectedRows === 0) {
       return {
-        title: "Beverage Availability Updated",
-        message: "Beverage availability has been updated",
-      };
+        status: 404,
+        message: "Beverage was not found."
+      }
     }
+
+    return {
+      status: 200,
+      message: "Beverage is now available.",
+    };
+
   } catch (err) {
-    console.error(err);
+    return {
+      status: 500, // Internal Server Error
+      message: "An error occurred while patching the beverage. Please try again later."
+    };
   }
 };
 
@@ -309,14 +318,22 @@ exports.patchUnavailable = async (beverageId) => {
       [beverageId]
     );
 
-    if (results.affectedRows) {
+    if (results.affectedRows === 0) {
       return {
-        title: "Beverage Availability Updated",
-        message: "Beverage availability has been updated",
-      };
+        status: 404,
+        message: "Beverage was not found."
+      }
     }
+
+    return {
+      status: 200,
+      message: "Beverage is now unavailable.",
+    };
   } catch (err) {
-    console.error(err);
+    return {
+      status: 500, // Internal Server Error
+      message: "An error occurred while patching the beverage. Please try again later."
+    };
   }
 };
 
@@ -367,7 +384,7 @@ exports.readPopularBeverages = async () => {
   } catch (err) {
     return {
       status: 500, // Internal Server Error
-      message: "An error occurred while retrieving the beverage. Please try again later."
+      message: "An error occurred while retrieving the beverages. Please try again later."
     };
   }
 };
