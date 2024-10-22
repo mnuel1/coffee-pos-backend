@@ -16,17 +16,9 @@ exports.create = async (req, res) => {
 };
 
 exports.getOne = async (req, res) => {
-  try {
-    const beverageId = req.params.id;
-    const beverage = await readOneBeverage(beverageId);
-    res.status(200).json(beverage);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      title: "Internal Server Error",
-      message: "Something went wrong. Please Try again",
-    });
-  }
+  const beverageId = req.params.id;
+  const response = await readOneBeverage(beverageId);
+  res.status(response.status).json(response.status === 200 ? response.beverage : { message: response.message });
 };
 
 exports.getAll = async (req, res) => {

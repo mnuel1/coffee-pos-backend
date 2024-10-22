@@ -86,40 +86,52 @@ exports.readOneBeverage = async (beverageId) => {
       [beverageId]
     );
 
-    if (results.length) {
-      const beverage = results[0];
+    if (results.length === 0) {
+      return {
+        status: 404,
+        message: "Beverage not found."
+      }
+    }
 
-      beverage.sugar_level = JSON.parse(beverage.sugar_level);
-      beverage.price = JSON.parse(beverage.price);
-      beverage.calories = JSON.parse(beverage.calories);
-      beverage.category = JSON.parse(beverage.category);
+    const beverage = results[0];
+  
+    beverage.sugar_level = JSON.parse(beverage.sugar_level);
+    beverage.price = JSON.parse(beverage.price);
+    beverage.calories = JSON.parse(beverage.calories);
+    beverage.sub_categories = JSON.parse(beverage.sub_categories);
 
-      const formattedBeverage = {
-        beverage_id: beverage.beverage_id,
-        name: beverage.name,
-        description: beverage.description,
-        sugarLevel: beverage.sugar_level,
-        price: {
-          small: beverage.price[0],
-          medium: beverage.price[1],
-          large: beverage.price[2],
-        },
-        calories: {
-          small: beverage.calories[0],
-          medium: beverage.calories[1],
-          large: beverage.calories[2],
-        },
-        beverageImg: beverage.beverage_img,
-        isPopular: !!beverage.is_popular,
-        isFeatured: !!beverage.is_featured,
-        isAvailable: !!beverage.is_available,
-        category: beverage.category,
-      };
+    const formattedBeverage = {
+      beverage_id: beverage.beverage_id,
+      name: beverage.name,
+      description: beverage.description,
+      sugarLevel: beverage.sugar_level,
+      price: {
+        small: beverage.price[0],
+        medium: beverage.price[1],
+        large: beverage.price[2],
+      },
+      calories: {
+        small: beverage.calories[0],
+        medium: beverage.calories[1],
+        large: beverage.calories[2],
+      },
+      beverageImg: beverage.beverage_img,
+      isPopular: !!beverage.is_popular,
+      isFeatured: !!beverage.is_featured,
+      isAvailable: !!beverage.is_available,
+      category: beverage.category,
+      subCategories: beverage.sub_categories
+    }
 
-      return formattedBeverage;
+    return {
+      status: 200,
+      beverage: formattedBeverage
     }
   } catch (err) {
-    console.error(err);
+    return {
+      status: 500, // Internal Server Error
+      message: "An error occurred while retrieving the beverage. Please try again later."
+    };
   }
 };
 
