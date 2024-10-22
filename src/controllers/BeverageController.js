@@ -6,6 +6,7 @@ const {
   deleteBeverage,
   patchAvailable,
   patchUnavailable,
+  readPopularBeverages
 } = require("../services/BeverageService");
 
 exports.create = async (req, res) => {
@@ -107,3 +108,12 @@ exports.patchBeverageUnavailable = async (req, res) => {
     });
   }
 };
+
+exports.getPopularBeverages = async (req, res) => {
+  try {
+    const response = await readPopularBeverages();
+    res.status(200).json(response)
+  } catch (error) {
+    console.log(error)
+  }
+}

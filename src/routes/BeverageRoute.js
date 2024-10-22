@@ -9,14 +9,25 @@ const {
   deleteBev,
   patchBeverageAvailable,
   patchBeverageUnavailable,
+  getPopularBeverages
 } = require("../controllers/BeverageController");
 
-router.route("/beverages").post(create);
-router.route("/beverages/:id").get(getOne);
-router.route("/beverages").get(getAll);
-router.route("/beverages/:id").put(update);
-router.route("/beverages/:id").delete(deleteBev);
-router.route("/beverages/:id/available").patch(patchBeverageAvailable);
-router.route("/beverages/:id/unavailable").patch(patchBeverageUnavailable);
+router.route("/beverages")
+  .post(create)
+  .get(getAll);
+
+router.route("/beverages/popular")
+  .get(getPopularBeverages);
+
+router.route("/beverages/:id")
+  .get(getOne)
+  .put(update)
+  .delete(deleteBev);
+
+router.route("/beverages/:id/available")
+  .patch(patchBeverageAvailable);
+
+router.route("/beverages/:id/unavailable")
+  .patch(patchBeverageUnavailable);
 
 module.exports = router;

@@ -260,3 +260,48 @@ exports.patchUnavailable = async (beverageId) => {
     console.error(err);
   }
 };
+
+exports.readPopularBeverages = async () => {
+  try {
+    const [results] = await db.query(
+      `SELECT b.beverage_id, b.name, b.description, b.price, b.calories, b.beverage_img, b.is_popular, b.is_featured, b.is_available, b.category, COUNT(ob.beverage_id) AS order_count
+       FROM order_beverages ob
+       INNER JOIN beverages b ON ob.beverage_id = b.beverage_id
+       GROUP BY b.beverage_id
+       ORDER BY order_count DESC
+       LIMIT 10` 
+    );
+
+    const popularBeverages = results.map((beverage) => {
+      beverage.price = JSON.parse(beverage.price);
+      beverage.calories = JSON.parse(beverage.calories);
+      beverage.category = JSON.parse(beverage.category);
+
+      return {
+        id: beverage.beverage_id,
+        name: beverage.name,
+        description: beverage.description,
+        price: {
+          small: beverage.price[0],
+          medium: beverage.price[1],
+          large: beverage.price[2],
+        },
+        calories: {
+          small: beverage.calories[0],
+          medium: beverage.calories[1],
+          large: beverage.calories[2],
+        },
+        beverageImg: beverage.beverage_img,
+        isPopular: !!beverage.is_popular,
+        isFeatured: !!beverage.is_featured,
+        isAvailable: !!beverage.is_available,
+        category: beverage.category,
+        orderCount: beverage.order_count,
+      };
+    });
+
+    return popularBeverages;
+  } catch (err) {
+    return err;
+  }
+};
