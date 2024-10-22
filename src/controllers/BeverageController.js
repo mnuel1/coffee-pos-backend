@@ -18,7 +18,7 @@ exports.create = async (req, res) => {
 exports.getOne = async (req, res) => {
   const beverageId = req.params.id;
   const response = await readOneBeverage(beverageId);
-  res.status(response.status).json(response.status === 200 ? response.beverages : { message: response.message });
+  res.status(response.status).json(response.status === 200 ? response.beverage : { message: response.message });
 };
 
 exports.getAll = async (req, res) => {
@@ -27,18 +27,10 @@ exports.getAll = async (req, res) => {
 };
 
 exports.update = async (req, res) => {
-  try {
-    const beverageId = req.params.id;
-    const beverageDTO = req.body;
-    const response = await updateBeverage(beverageId, beverageDTO);
-    res.status(200).json(response);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      title: "Internal Server Error",
-      message: "Something went wrong. Please Try again",
-    });
-  }
+  const beverageId = req.params.id;
+  const beverageDTO = req.body;
+  const response = await updateBeverage(beverageId, beverageDTO);
+  res.status(response.status).json({ message: response.message });
 };
 
 exports.deleteBev = async (req, res) => {
@@ -86,10 +78,6 @@ exports.patchBeverageUnavailable = async (req, res) => {
 };
 
 exports.getPopularBeverages = async (req, res) => {
-  try {
-    const response = await readPopularBeverages();
-    res.status(200).json(response)
-  } catch (error) {
-    console.log(error)
-  }
+  const response = await readPopularBeverages();
+  res.status(response.status).json(response.status === 200 ? response.popularBeverages : response.message)
 }

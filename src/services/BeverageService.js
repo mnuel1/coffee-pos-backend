@@ -194,6 +194,7 @@ exports.updateBeverage = async (beverageId, beverageDTO) => {
     isFeatured,
     isAvailable,
     category,
+    subCategories
   } = beverageDTO;
 
   const beverage = new Beverage(
@@ -207,12 +208,13 @@ exports.updateBeverage = async (beverageId, beverageDTO) => {
     isPopular,
     isFeatured,
     isAvailable,
-    category
+    category,
+    subCategories
   );
 
   try {
     const [results] = await db.query(
-      `UPDATE beverages SET name = ?, description = ?, sugar_level = ?, price = ?, calories = ?, beverage_img = ?, is_popular = ?, is_featured = ?, is_available = ?, category = ? WHERE beverage_id = ?`,
+      `UPDATE beverages SET name = ?, description = ?, sugar_level = ?, price = ?, calories = ?, beverage_img = ?, is_popular = ?, is_featured = ?, is_available = ?, category = ?, sub_categories = ? WHERE beverage_id = ?`,
       [
         beverage.name,
         beverage.description,
@@ -223,19 +225,29 @@ exports.updateBeverage = async (beverageId, beverageDTO) => {
         beverage.isPopular,
         beverage.isFeatured,
         beverage.isAvailable,
-        JSON.stringify(beverageDTO.category),
+        beverage.category,
+        JSON.stringify(beverage.subCategories),
         beverageId,
       ]
     );
 
-    if (results.affectedRows) {
+    if (results.affectedRows === 0) {
       return {
-        title: "Beverage Updated",
-        message: "Beverage details have been updated",
-      };
+        status: 404,
+        message: `Beverage with an ID of ${beverageId} was not found.`
+      }
     }
+
+    return {
+      status: 200,
+      message: "Beverage details have been updated"
+    }
+
   } catch (err) {
-    console.error(err);
+    return {
+      status: 500, // Internal Server Error
+      message: "An error occurred while retrieving the beverage. Please try again later."
+    };
   }
 };
 
@@ -337,8 +349,15 @@ exports.readPopularBeverages = async () => {
       };
     });
 
-    return popularBeverages;
+    return {
+      status: 200,
+      popularBeverages
+    }
+
   } catch (err) {
-    return err;
+    return {
+      status: 500, // Internal Server Error
+      message: "An error occurred while retrieving the beverage. Please try again later."
+    };
   }
 };
