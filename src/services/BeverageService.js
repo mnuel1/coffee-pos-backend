@@ -14,6 +14,7 @@ exports.createBeverage = async (beverageDTO) => {
     isFeatured,
     isAvailable,
     category,
+    subCategories
   } = beverageDTO;
 
   const beverage = new Beverage(
@@ -27,7 +28,8 @@ exports.createBeverage = async (beverageDTO) => {
     isPopular,
     isFeatured,
     isAvailable,
-    category
+    category,
+    subCategories
   );
 
   beverage.isAvailable = true;
@@ -35,7 +37,7 @@ exports.createBeverage = async (beverageDTO) => {
 
   try {
     const [results] = await db.query(
-      `INSERT INTO beverages (name, description, sugar_level, price, calories, beverage_img, is_popular, is_featured, is_available, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO beverages (name, description, sugar_level, price, calories, beverage_img, is_popular, is_featured, is_available, category, sub_categories) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         beverage.name,
         beverage.description,
@@ -46,18 +48,34 @@ exports.createBeverage = async (beverageDTO) => {
         beverage.isPopular,
         beverage.isFeatured,
         beverage.isAvailable,
-        JSON.stringify(beverageDTO.category),
+        beverage.category,
+        JSON.stringify(beverage.subCategories)
       ]
     );
 
     if (results.affectedRows) {
       return {
-        title: "Beverage Created",
-        message: "Beverage has been added to the menu",
+        status: 201,
+        message: "Beverage has been added to the menu.",
+      };
+    } else {
+      return {
+        status: 500, // Internal Server Error
+        message: "Failed to create beverage. Please try again."
       };
     }
   } catch (err) {
-    console.error(err);
+    if (err.errno === 1048) {
+      return {
+        status: 400,
+        message: "Required fields cannot be empty."
+      }
+    } else {
+      return {
+        status: 500, // Internal Server Error
+        message: "An unexpected error occurred. Please try again later."
+      };
+    }
   }
 };
 
@@ -269,7 +287,7 @@ exports.readPopularBeverages = async () => {
        INNER JOIN beverages b ON ob.beverage_id = b.beverage_id
        GROUP BY b.beverage_id
        ORDER BY order_count DESC
-       LIMIT 10` 
+       LIMIT 10`
     );
 
     const popularBeverages = results.map((beverage) => {

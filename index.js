@@ -24,8 +24,8 @@ app.use("/api/v1", beverage);
 
 const localIpAddress = getLocalIpAddress();
 
-const server = app.listen(process.env.PORT, localIpAddress, () => {
-  console.log(`Server is running on http://${localIpAddress}:${process.env.PORT}`);
+const server = app.listen(process.env.PORT, () => {
+  console.log(`Server is running on http://localhost:${process.env.PORT}`);
 });
 
 app.get("/", (req, res) => {

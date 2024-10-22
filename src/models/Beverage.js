@@ -10,7 +10,8 @@ class Beverage {
     isPopular,
     isFeatured,
     isAvailable,
-    category
+    category,
+    subCategories
   ) {
     this.idNo = idNo;
     this.name = name;
@@ -23,6 +24,7 @@ class Beverage {
     this.isFeatured = isFeatured;
     this.isAvailable = isAvailable;
     this.category = category;
+    this.subCategories = subCategories;
   }
 }
 
