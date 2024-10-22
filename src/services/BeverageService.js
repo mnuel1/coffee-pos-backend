@@ -94,7 +94,7 @@ exports.readOneBeverage = async (beverageId) => {
     }
 
     const beverage = results[0];
-  
+
     beverage.sugar_level = JSON.parse(beverage.sugar_level);
     beverage.price = JSON.parse(beverage.price);
     beverage.calories = JSON.parse(beverage.calories);
@@ -143,7 +143,7 @@ exports.readAllBeverages = async () => {
       beverage.sugar_level = JSON.parse(beverage.sugar_level);
       beverage.price = JSON.parse(beverage.price);
       beverage.calories = JSON.parse(beverage.calories);
-      beverage.category = JSON.parse(beverage.category);
+      beverage.sub_categories = JSON.parse(beverage.sub_categories);
 
       return {
         id: beverage.beverage_id,
@@ -165,12 +165,19 @@ exports.readAllBeverages = async () => {
         isFeatured: !!beverage.is_featured,
         isAvailable: !!beverage.is_available,
         category: beverage.category,
+        subCategories: beverage.sub_categories
       };
     });
 
-    return formattedBeverages;
+    return {
+      status: 200,
+      beverages: formattedBeverages
+    };
   } catch (err) {
-    console.error(err);
+    return {
+      status: 500, // Internal Server Error
+      message: "An error occurred while retrieving the beverage. Please try again later."
+    };
   }
 };
 
