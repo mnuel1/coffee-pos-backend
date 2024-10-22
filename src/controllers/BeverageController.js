@@ -34,19 +34,9 @@ exports.update = async (req, res) => {
 };
 
 exports.deleteBev = async (req, res) => {
-  try {
-    const beverageId = req.params.id;
-    const response = await deleteBeverage(beverageId);
-    if (response.status === 405) {
-      res.status(405).json(response.message)
-    } else res.status(200).json(response);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      title: "Internal Server Error",
-      message: "Something went wrong. Please Try again",
-    });
-  }
+  const beverageId = req.params.id;
+  const response = await deleteBeverage(beverageId);
+  res.status(response.status).json({ message: response.message })
 };
 
 exports.patchBeverageAvailable = async (req, res) => {

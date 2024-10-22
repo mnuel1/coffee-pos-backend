@@ -89,7 +89,7 @@ exports.readOneBeverage = async (beverageId) => {
     if (results.length === 0) {
       return {
         status: 404,
-        message: "Beverage not found."
+        message: "Beverage was not found."
       }
     }
 
@@ -176,7 +176,7 @@ exports.readAllBeverages = async () => {
   } catch (err) {
     return {
       status: 500, // Internal Server Error
-      message: "An error occurred while retrieving the beverage. Please try again later."
+      message: "An error occurred while retrieving the beverages. Please try again later."
     };
   }
 };
@@ -234,7 +234,7 @@ exports.updateBeverage = async (beverageId, beverageDTO) => {
     if (results.affectedRows === 0) {
       return {
         status: 404,
-        message: `Beverage with an ID of ${beverageId} was not found.`
+        message: `Beverage was not found.`
       }
     }
 
@@ -246,7 +246,7 @@ exports.updateBeverage = async (beverageId, beverageDTO) => {
   } catch (err) {
     return {
       status: 500, // Internal Server Error
-      message: "An error occurred while retrieving the beverage. Please try again later."
+      message: "An error occurred while updating the beverage. Please try again later."
     };
   }
 };
@@ -258,18 +258,28 @@ exports.deleteBeverage = async (beverageId) => {
       [beverageId]
     );
 
-    if (results.affectedRows) {
+    if (results.affectedRows === 0) {
       return {
-        title: "Beverage Deleted",
-        message: "Beverage has been removed from the menu",
+        status: 404,
+        message: "Beverage was not found.",
       };
+    }
+
+    return {
+      status: 200,
+      message: "Beverage deleted successfully."
     }
   } catch (err) {
     if (err.errno === 1451) {
       return {
-        status: 405,
+        status: 409,
         message: "Unable to delete. Beverage has been ordered already."
       }
+    } else {
+      return {
+        status: 500, // Internal Server Error
+        message: "An error occurred while deleting the beverage. Please try again later."
+      };
     }
   }
 };
