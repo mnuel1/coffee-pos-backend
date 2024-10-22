@@ -340,7 +340,7 @@ exports.patchUnavailable = async (beverageId) => {
 exports.readPopularBeverages = async () => {
   try {
     const [results] = await db.query(
-      `SELECT b.beverage_id, b.name, b.description, b.price, b.calories, b.beverage_img, b.is_popular, b.is_featured, b.is_available, b.category, COUNT(ob.beverage_id) AS order_count
+      `SELECT b.beverage_id, b.name, b.description, b.price, b.calories, b.beverage_img, b.is_popular, b.is_featured, b.is_available, b.category, b.sub_categories, COUNT(ob.beverage_id) AS order_count
        FROM order_beverages ob
        INNER JOIN beverages b ON ob.beverage_id = b.beverage_id
        GROUP BY b.beverage_id
@@ -351,7 +351,7 @@ exports.readPopularBeverages = async () => {
     const popularBeverages = results.map((beverage) => {
       beverage.price = JSON.parse(beverage.price);
       beverage.calories = JSON.parse(beverage.calories);
-      beverage.category = JSON.parse(beverage.category);
+      beverage.sub_categories = JSON.parse(beverage.sub_categories);
 
       return {
         id: beverage.beverage_id,
@@ -372,6 +372,7 @@ exports.readPopularBeverages = async () => {
         isFeatured: !!beverage.is_featured,
         isAvailable: !!beverage.is_available,
         category: beverage.category,
+        subCategories: beverage.sub_categories,
         orderCount: beverage.order_count,
       };
     });
